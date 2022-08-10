@@ -1,25 +1,100 @@
+// Binary Search Tree Implementation..
+// @KS.
 #include<iostream>
 using namespace std;
-class node {
+
+class Node {
 	public:
-		node *left;
-		node *right;
 		int data;
-		node(int data) {
+		Node* left;
+		Node* right;
+		Node(int data) {
 			this->data=  data;
 			left= right= NULL;
 		}
 };
-bool flg=false;
-node *root= NULL;
-node * insert (node *r, int x) {
-	if (r==NULL) {
-		node* t= new node(x);
+class BinarySearchTree {
+	public:
+		Node* root;
+		BinarySearchTree() {
+			root= NULL;
+		}
 
-		if (!flg) {
+		Node* insert( Node* root, int val);
+		Node* DeleteNodeInBST(Node* root,int data);
+		Node* inOrderTraversal( Node* root);
+		Node* preOrderTraversal( Node* root);
+		Node* postOrderTraversal( Node* root);
+		Node* merge( Node* r1, Node* r2);
+		Node* FindMax(Node* root);
+		int leafCount (Node* root);
+		int treeHeight(Node *root);
+};
+
+int main () {
+	BinarySearchTree tree1, tree2;
+
+	tree1.insert(tree1.root,10);
+	tree1.insert(tree1.root, 8);
+	tree1.insert(tree1.root, 6);
+	tree1.insert(tree1.root, 9);
+	tree1.insert(tree1.root, 15);
+	tree1.insert(tree1.root, 14);
+	tree1.insert(tree1.root, 20);
+
+//    tree.DeleteNodeInBST(tree.root ,9);
+
+
+	cout<<"In Order Print (left--Root--Right)"<<endl;
+	tree1.inOrderTraversal(tree1.root);
+
+	cout<<"\n-----------------------"<<endl;
+	cout<<"Pre Order Print (Root--left--Right)"<<endl;
+
+	tree1.preOrderTraversal(tree1.root);
+
+	cout<<"\n-----------------------"<<endl;
+	cout<<"Post Order Print (left--Right--Root)"<<endl;
+
+	tree1.postOrderTraversal(tree1.root);
+	cout<<"\n\nThe total leaf node in tree are: "<< tree1.leafCount(tree1.root);
+
+	cout<<"\n\nThe height of root node is : "<< tree1.treeHeight(tree1.root);
+
+	// Merge .
+
+	tree2.insert(tree2.root, 7);
+	tree2.insert(tree2.root, 33);
+
+	tree1.merge(tree2.root, tree1.root);
+	cout<<"\n\nAfter Merging"<<endl;
+	cout<<"In Order Print (left--Root--Right)"<<endl;
+
+	tree1.inOrderTraversal(tree1.root);
+	cout<<"\n\nThe total leaf node in tree are: "<< tree1.leafCount(tree1.root);
+
+	cout<<"\n\nThe height of root node is : "<< tree1.treeHeight(tree1.root);
+
+	return 0;
+}
+
+Node* BinarySearchTree::FindMax(Node* r) {
+
+	while(r->right!=NULL) {
+		r= r->right;
+	}
+	return r;
+
+}
+
+Node* BinarySearchTree::insert(Node* r, int val ) {
+
+	if (r==NULL) {
+		Node* t= new Node(val);
+
+		if (r==root)
 			root= r=t;
-			flg=true;
-		} else
+		else
 			r=t;
 
 		return r;
@@ -28,91 +103,114 @@ node * insert (node *r, int x) {
 //        //cout<<"Duplicate Record  "<<val;
 //            return r;
 //    }
-	else if (x < r->data) {
-		r->left = insert(r->left , x );
+	else if (val < r->data) {
+		r->left = insert(r->left , val );
 		return r;
-	} else if (x > r->data) {
-		r->right= insert( r->right,x);
+	} else if (val > r->data) {
+		r->right= insert( r->right,val);
 		return r;
 	}
-}
-node * Search (node *r, int x) {
-	if(r==NULL) {
 
-		return r;
-	} else if (r->data==x) {
-		cout<<"Data Found:"<< x <<endl;
-	} else if (x<r->data) {
-		return		Search (r->left, x);
-	} else if (x>r->data) {
-		return		Search (r->right, x);
+}
+Node * BinarySearchTree::DeleteNodeInBST(Node* root, int data) {
+
+	if(root==NULL)
+		return root;
+	else if(data<root->data)
+		root->left = DeleteNodeInBST(root->left, data);
+	else if (data> root->data)
+		root->right = DeleteNodeInBST(root->right, data);
+	else {
+		//No child
+		if(root->right == NULL && root->left == NULL) {
+			delete root;
+			root = NULL;
+			return root;
+		}
+		//One child on left
+		else if(root->right == NULL) {
+			Node* temp = root;
+			root= root->left;
+			delete temp;
+		}
+		//One child on right
+		else if(root->left == NULL) {
+			Node* temp = root;
+			root= root->right;
+			delete temp;
+		}
+		//two child
+		else {
+			Node* temp = FindMax(root->left);
+			root->data = temp->data;
+			root->left = DeleteNodeInBST(root->left, temp->data);
+		}
 	}
+	return root;
 }
 
-// In Order (left--Root--Right)
-void InOrderPrint(node *r) {
+
+Node * BinarySearchTree::inOrderTraversal( Node* r) {
 	if (r == NULL)
-		return;
+		return NULL;
 	/* first recur on left child */
-	InOrderPrint(r->left);
+	inOrderTraversal(r->left);
 	/* then print the data of node */
 	cout << " "<< r->data << " -> ";
 	/* now recur on right child */
-	InOrderPrint(r->right);
+	inOrderTraversal(r->right);
+
 }
 
-void PreOrderPrint(node *r) {
-// Pre Order (Root--left--Right)
+Node* BinarySearchTree::preOrderTraversal( Node* r) {
 	if (r == NULL)
-		return;
+		return NULL;
 
-	/* First print the data of node */
 	cout << " "<< r->data << " -> ";
-
-	/* then recur on left subtree */
-	PreOrderPrint(r->left);
-
-	/* now recur on right subtree */
-	PreOrderPrint(r->right);
+	preOrderTraversal(r->left);
+	preOrderTraversal(r->right);
 }
-
-// Post Order (left--Right--Root)
-void PostOrderPrint(node *r) {
+Node* BinarySearchTree::postOrderTraversal( Node* r) {
 	if (r == NULL)
-		return;
-	// first recur on left subtree
-	PostOrderPrint(r->left);
-	// then recur on right subtree
-	PostOrderPrint(r->right);
-	// now deal with the node
+		return NULL;
+	postOrderTraversal(r->left);
+	postOrderTraversal(r->right);
 	cout << " "<< r->data << " -> ";
 }
 
-// in Order (left--Root--Right)
-// Pre Order (Root--left--Right)
-// Post Order (left--Right--Root)
-int main () {
-	insert(root, 5);
-	insert(root, 7);
-	insert(root, 3);
-	insert(root, 9);
-	insert(root, 11);
-	insert(root, 13);
-	insert(root, 19);
-	insert(root, 6);
-	Search(root, 9);
-	cout<<"In Order Print (left--Root--Right)"<<endl;
-	InOrderPrint(root);
+int BinarySearchTree::leafCount(Node * r) {
+	int static count= 0;
+	if(r == NULL)
+		return 0;
+	else if(r->left == NULL && r->right == NULL)
+		return 1;
 
-	cout<<"\n-----------------------"<<endl;
-	cout<<"Pre Order Print (Root--left--Right)"<<endl;
-	PreOrderPrint(root);
+	return count + leafCount(r->left) + leafCount(r->right);
+}
 
-	cout<<"\n-----------------------"<<endl;
-	cout<<"Post Order Print (left--Right--Root)"<<endl;
-	PostOrderPrint(root);
+int BinarySearchTree::treeHeight(Node *root) {
+	int static l_height=0;
+	int static r_height=0;
+	if (root == NULL)
+		return -1;
+	else {
+		l_height = treeHeight(root->left);
+		r_height = treeHeight(root->right);
+		if (l_height > r_height)
+			return (l_height + 1);
+		else
+			return (r_height + 1);
+	}
+}
+// This method will merge tree1 into tree2
+Node * BinarySearchTree::merge( Node* r1, Node* r2) {
+	if (r1 == NULL)
+		return NULL;
+	/* first recur on left child */
+	merge(r1->left, r2);
 
-	cout<<"\n-----------------------"<<endl;
+	insert(r2, r1->data);
+	/* now recur on right child */
+	merge(r1->right, r2);
 
-	return 0;
 }
